@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>New Generation Chat</title>
+    <style>
+        /* Основной стиль */
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #f4f4f9;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            overflow: hidden;
+        }
+
+        .chat-container {
+            width: 100%;
+            max-width: 450px;
+            background-color: #ffffff;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            height: 90vh;
+            overflow: hidden;
+        }
+
+        .chat-header {
+            font-size: 24px;
+            font-weight: bold;
+            color: #2d3a3a;
+            text-align: center;
+            padding: 15px;
+            background-color: #66bb6a;
+            color: white;
+            border-radius: 20px 20px 0 0;
+        }
+
+        .chat-box {
+            flex-grow: 1;
+            width: 100%;
+            border: none;
+            overflow-y: auto;
+            padding: 10px;
+            background-color: #f9f9f9;
+            margin-bottom: 15px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .message {
+            padding: 12px 18px;
+            border-radius: 15px;
+            max-width: 70%;
+            font-size: 16px;
+            line-height: 1.5;
+            position: relative;
+            background-color: #e0f7fa;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .user-message {
+            background-color: #81c784;
+            align-self: flex-end;
+            border-top-left-radius: 0;
+        }
+
+        .other-message {
+            background-color: #81d4fa;
+            align-self: flex-start;
+            border-top-right-radius: 0;
+        }
+
+        .message-time {
+            font-size: 12px;
+            color: #888;
+            position: absolute;
+            bottom: 5px;
+            right: 10px;
+        }
+
+        .input-area {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            padding: 10px;
+            background-color: #ffffff;
+            border-top: 1px solid #ddd;
+        }
+
+        .input-area input {
+            width: 100%;
+            padding: 14px;
+            font-size: 16px;
+            border: 2px solid #ddd;
+            border-radius: 25px;
+            background-color: #ffffff;
+            transition: border-color 0.3s ease;
+            outline: none;
+        }
+
+        .input-area input:focus {
+            border-color: #66bb6a;
+        }
+
+        .input-area button {
+            padding: 14px;
+            background-color: #66bb6a;
+            color: white;
+            border: none;
+            border-radius: 25px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        .input-area button:hover {
+            background-color: #388e3c;
+        }
+
+        .file-label {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: #66bb6a;
+            color: white;
+            padding: 10px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 18px;
+            transition: background-color 0.3s ease;
+        }
+
+        .file-label:hover {
+            background-color: #388e3c;
+        }
+
+        .file-info {
+            font-size: 14px;
+            color: #888;
+            text-align: center;
+            margin-top: 10px;
+        }
+
+        /* Адаптивность для маленьких экранов */
+        @media (max-width: 600px) {
+            .chat-container {
+                width: 100%;
+                height: 100vh;
+            }
+
+            .input-area input {
+                font-size: 14px;
+            }
+
+            .input-area button {
+                font-size: 14px;
+            }
+
+            .file-label {
+                font-size: 16px;
+            }
+
+            .chat-header {
+                font-size: 22px;
+                padding: 10px;
+            }
+        }
+
+    </style>
+</head>
+<body>
+    <div class="chat-container">
+        <div class="chat-header">New Generation Chat</div>
+
+        <div class="chat-box" id="chat-box">
+            <!-- Сообщения чата будут здесь -->
+        </div>
+
+        <div class="input-area">
+            <input type="text" id="user-input" placeholder="Введите сообщение...">
+            <button onclick="sendMessage()">Отправить</button>
+            <label for="file-input" class="file-label">📎 Прикрепить файл</label>
+            <input type="file" id="file-input" style="display: none;" onchange="sendFile()">
+        </div>
+
+        <div class="file-info" id="file-info"></div>
+    </div>
+
+    <script>
+        let currentUser = 'Пользователь 1'; // Изначальный пользователь
+        const totalUsers = 500; // Количество пользователей
+
+        // Генерация пользователей
+        function generateUsers() {
+            const userList = document.getElementById('user-list');
+            for (let i = 1; i <= totalUsers; i++) {
+                const user = document.createElement('div');
+                user.classList.add('user');
+                user.textContent = `Пользователь ${i}`;
+                user.onclick = () => setCurrentUser(i);
+                userList.appendChild(user);
+            }
+        }
+
+        // Изменение текущего пользователя
+        function setCurrentUser(userNumber) {
+            currentUser = `Пользователь ${userNumber}`;
+        }
+
+        // Отправка сообщения
+        function sendMessage() {
+            const userInput = document.getElementById('user-input').value;
+            if (userInput.trim() !== '') {
+                const messageBox = document.createElement('div');
+                messageBox.classList.add('message');
+
+                // Отправка сообщения от текущего пользователя
+                messageBox.classList.add('user-message');
+                messageBox.textContent = `${currentUser}: ${userInput}`;
+
+                const chatBox = document.getElementById('chat-box');
+                chatBox.appendChild(messageBox);
+                document.getElementById('user-input').value = ''; // очистка поля ввода
+
+                // Добавление времени сообщения
+                const timeSpan = document.createElement('span');
+                timeSpan.classList.add('message-time');
+                timeSpan.textContent = new Date().toLocaleTimeString();
+                messageBox.appendChild(timeSpan);
+
+                // Прокручиваем чат вниз
+                chatBox.scrollTop = chatBox.scrollHeight;
+            }
+        }
+
+        // Отправка файла
+        function sendFile() {
+            const fileInput = document.getElementById('file-input');
+            const fileInfo = document.getElementById('file-info');
+            const chatBox = document.getElementById('chat-box');
+            
+            const file = fileInput.files[0];
+            if (file) {
+                const messageBox = document.createElement('div');
+                messageBox.classList.add('message');
+                messageBox.classList.add('user-message');
+                
+                // Создаем ссылку для скачивания
+                const fileLink = document.createElement('a');
+                fileLink.href = URL.createObjectURL(file);
+                fileLink.download = file.name;
+                fileLink.textContent = `Файл: ${file.name}`;
+                messageBox.appendChild(fileLink);
+
+                // Отображаем информацию о файле
+                fileInfo.textContent = `Вы прикрепили файл: ${file.name}`;
+
+                chatBox.appendChild(messageBox);
+                chatBox.scrollTop = chatBox.scrollHeight;
+                fileInput.value = ''; // очистка поля ввода
+            }
+        }
+
+        // Инициализация
+        generateUsers();
+    </script>
+</body>
+</html>
